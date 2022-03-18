@@ -71,7 +71,7 @@ namespace {
       return false;
   }
 
-void delay_ro(STM_DELAY_SIG(tx,input,output,fn)){
+void DelayByteEager::delay_ro(STM_DELAY_SIG(tx,input,output,fn)){
     stm::fntuple_t tuple;
     tuple.input_index = input;
     tuple.output_index = output;
@@ -79,7 +79,7 @@ void delay_ro(STM_DELAY_SIG(tx,input,output,fn)){
     tx->fn_list.insert(tuple);
     return;
 }
-void delay_rw(STM_DELAY_SIG(tx,input,output,fn)){
+void DelayByteEager::delay_rw(STM_DELAY_SIG(tx,input,output,fn)){
     stm::fntuple_t tuple;
     tuple.input_index = input;
     tuple.output_index = output;

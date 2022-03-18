@@ -60,7 +60,7 @@ namespace stm
   template void MiniVector<qtable_t>::expand();
   template void MiniVector<ValueListEntry>::expand();
   template void MiniVector<UndoLogEntry>::expand();
-
+  template void MiniVector<fntuple_t>::expand();
   /**
    * This doubles the size of the index. This *does not* do anything as
    * far as actually doing memory allocation. Callers should delete[] the

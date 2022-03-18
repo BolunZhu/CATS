@@ -88,6 +88,10 @@ namespace stm
       bool           strong_HG;     // for strong hourglass
       bool           irrevocable;   // tells begin_blocker that I'm THE ONE
 
+      AddressList    input_list;
+      AddressList    output_list;
+      FnList         fn_list;
+
       /*** PER-THREAD FIELDS FOR ENABLING ADAPTIVITY POLICIES */
       uint64_t      end_txn_time;      // end of non-transactional work
       uint64_t      total_nontxn_time; // time on non-transactional work
@@ -118,7 +122,7 @@ namespace stm
       TM_FASTCALL void(*tmcommit)(STM_COMMIT_SIG(,));
       TM_FASTCALL void*(*tmread)(STM_READ_SIG(,,));
       TM_FASTCALL void(*tmwrite)(STM_WRITE_SIG(,,,));
-
+      TM_FASTCALL void(*tmdelay)(STM_DELAY_SIG(,,,));  
       /**
        * Some APIs, in particular the itm API at the moment, want to be able
        * to rollback the top level of nesting without actually unwinding the

@@ -55,6 +55,7 @@ set(sources
   algs/tli.cpp
   algs/tml.cpp
   algs/tmllazy.cpp
+  algs/delaybyteeager.cpp
   policies/cbr.cpp
   policies/policies.cpp
   policies/static.cpp

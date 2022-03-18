@@ -26,6 +26,7 @@ namespace stm
       tx->tmread     = stms[new_alg].read;
       tx->tmwrite    = stms[new_alg].write;
       tx->tmcommit   = stms[new_alg].commit;
+      tx->tmdelay    = stms[new_alg].delay;
   }
 
   /**

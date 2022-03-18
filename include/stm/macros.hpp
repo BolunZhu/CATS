@@ -84,7 +84,7 @@
 #   define STM_READ_SIG(tx, addr, mask)       TxThread* tx, void** addr
 #   define STM_WRITE_SIG(tx, addr, val, mask) TxThread* tx, void** addr, void* val
 #endif
-
+# define STM_DELAY_SIG(tx,input,output,fn) TxThread* tx, uint32_t input, uint32_t output, uint64_t fn
 #if defined(STM_PROTECT_STACK)
 #   define STM_COMMIT_SIG(tx, stack)  TxThread* tx, void** stack
 #   define STM_IRREVOC_SIG(tx, stack) TxThread* tx, void** stack

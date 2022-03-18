@@ -160,6 +160,13 @@ namespace stm
       rrec_t             readers;  // large bitmap for readers
   };
 
+  struct fntuple_t
+  {
+    uint64_t fn;
+    uint32_t input_index;
+    uint32_t output_index;
+  };
+
   /**
    *  In order to avoid a circular dependency, we need to declare some
    *  WriteSet support here.
@@ -184,7 +191,7 @@ namespace stm
   typedef BitFilter<1024>          filter_t;     // flat 1024-bit Bloom filter
   typedef MiniVector<nanorec_t>    NanorecList;  // <orec,val> pairs
   typedef MiniVector<void*>        AddressList;  // for the mmpolicy
-
+  typedef MiniVector<fntuple_t>    FnList;
   /**
    *  These are for counting consecutive aborts in a histogram.  We use them
    *  for measuring toxic transactions.  Note that there is special support

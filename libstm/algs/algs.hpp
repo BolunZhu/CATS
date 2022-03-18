@@ -45,6 +45,9 @@ namespace stm
       OrecEager, OrecEagerHour, OrecEagerBackoff, OrecEagerHB,
       OrecLazy,  OrecLazyHour,  OrecLazyBackoff,  OrecLazyHB,
       NOrec,     NOrecHour,     NOrecBackoff,     NOrecHB,
+      // by zbl
+      DelayByteEager,
+      // end by zbl
       // ProfileTM support.  These are not true STMs
       ProfileTM, ProfileAppAvg, ProfileAppMax, ProfileAppAll,
       // end with a distinct value
@@ -108,7 +111,7 @@ namespace stm
       void  (*TM_FASTCALL commit)(STM_COMMIT_SIG(,));
       void* (*TM_FASTCALL read)  (STM_READ_SIG(,,));
       void  (*TM_FASTCALL write) (STM_WRITE_SIG(,,,));
-
+      void  (*TM_FASTCALL delay) (STM_DELAY_SIG(,,,));
       /**
        * rolls the transaction back without unwinding, returns the scope (which
        * is set to null during rollback)
@@ -236,6 +239,7 @@ namespace stm
   typedef TM_FASTCALL void* (*ReadBarrier)(STM_READ_SIG(,,));
   typedef TM_FASTCALL void (*WriteBarrier)(STM_WRITE_SIG(,,,));
   typedef TM_FASTCALL void (*CommitBarrier)(STM_COMMIT_SIG(,));
+  typedef TM_FASTCALL void (*DelayBarrier)(STM_DELAY_SIG(,,,));
 
   inline void OnReadWriteCommit(TxThread* tx, ReadBarrier read_ro,
                                 WriteBarrier write_ro, CommitBarrier commit_ro)
@@ -250,6 +254,19 @@ namespace stm
       Trigger::onCommitSTM(tx);
   }
 
+  inline void OnReadWriteCommit(TxThread* tx, ReadBarrier read_ro,
+                                WriteBarrier write_ro, CommitBarrier commit_ro, DelayBarrier delay_ro)
+  {
+      tx->allocator.onTxCommit();
+      tx->abort_hist.onCommit(tx->consec_aborts);
+      tx->consec_aborts = 0;
+      ++tx->num_commits;
+      tx->tmread = read_ro;
+      tx->tmwrite = write_ro;
+      tx->tmcommit = commit_ro;
+      tx->tmdelay = delay_ro;
+      Trigger::onCommitSTM(tx);
+  }
   inline void OnReadWriteCommit(TxThread* tx)
   {
       tx->allocator.onTxCommit();
@@ -290,6 +307,14 @@ namespace stm
       tx->tmcommit = commit_rw;
   }
 
+  inline void OnFirstWrite(TxThread* tx, ReadBarrier read_rw,
+                           WriteBarrier write_rw, CommitBarrier commit_rw, DelayBarrier delay_rw)
+  {
+      tx->tmread = read_rw;
+      tx->tmwrite = write_rw;
+      tx->tmcommit = commit_rw;
+      tx->tmdelay = delay_rw;
+  }
   inline void PreRollback(TxThread* tx)
   {
       ++tx->num_aborts;
@@ -304,6 +329,21 @@ namespace stm
       tx->tmread = read_ro;
       tx->tmwrite = write_ro;
       tx->tmcommit = commit_ro;
+      Trigger::onAbort(tx);
+      scope_t* scope = tx->scope;
+      tx->scope = NULL;
+      return scope;
+  }
+
+  inline scope_t* PostRollback(TxThread* tx, ReadBarrier read_ro,
+                               WriteBarrier write_ro, CommitBarrier commit_ro, DelayBarrier delay_ro)
+  {
+      tx->allocator.onTxAbort();
+      tx->nesting_depth = 0;
+      tx->tmread = read_ro;
+      tx->tmwrite = write_ro;
+      tx->tmcommit = commit_ro;
+      tx->tmdelay = delay_ro;
       Trigger::onAbort(tx);
       scope_t* scope = tx->scope;
       tx->scope = NULL;

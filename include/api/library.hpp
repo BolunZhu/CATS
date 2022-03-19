@@ -224,6 +224,25 @@ namespace stm
    *  Abort the current transaction and restart immediately.
    */
   void restart();
+
+  inline uint32_t tx_input(TxThread * tx, uint64_t addr) { 
+      uint32_t index= tx->input_tail;
+      tx->input_tail++;
+      tx->input_list[index]=addr;
+      return index; 
+  }
+  inline uint32_t tx_output(TxThread * tx, uint64_t addr) { 
+      uint32_t index= tx->output_tail;
+      tx->output_tail++;
+      tx->output_list[index]=addr;
+      return index; 
+  }
+  inline uint64_t tx_get_input(TxThread *tx,uint32_t index){
+      return tx->input_list[index];
+  }
+  inline uint64_t tx_get_output(TxThread *tx,uint32_t index){
+      return tx->output_list[index];
+  }
 }
 
 /*** pull in the per-memory-access instrumentation framework */
@@ -294,7 +313,12 @@ namespace stm
 #define TM_ALLOC             stm::tx_alloc
 #define TM_FREE              stm::tx_free
 #define TM_SET_POLICY(P)     stm::set_policy(P)
-
+#define TM_INPUT(addr)       stm::tx_input(tx,addr)
+#define TM_OUTPUT(addr)      stm::tx_output(tx,addr)
+#define TM_GET_INPUT(index)  stm::tx_get_input(tx,index)
+#define TM_GET_OUTPUT(index) stm::tx_get_output(tx,index)
+#define TM_DELAY(input,output,fn) tx->tmdelay(tx,input,output,fn)
+#define stamp_TM_RELAY(vinput,output,fn) STM_SELF->tmdelay(tx,input,output,fn)
 #define TM_GET_ALGNAME()     stm::get_algname()
 
 /**

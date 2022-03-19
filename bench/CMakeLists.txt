@@ -21,6 +21,7 @@ include (AddTargetDefinitions)
 set(
   benchmarks
   CounterBench
+  FnCounterBench
   TreeBench
   ListBench
   DListBench

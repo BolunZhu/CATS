@@ -254,7 +254,7 @@ void execute_delay_before_commit(TxThread* tx,uint32_t max_conflict_index){
         uint32_t input_index = tx->fn_list[i].input_index;
         uint32_t output_index = tx->fn_list[i].output_index;
         // execute
-        f(input_index,output_index);
+        f(tx,input_index,output_index);
         uint32_t next_input_index;
         uint32_t next_output_index;
         if (i+1==tx->fn_tail){
@@ -301,7 +301,7 @@ void execute_delay_commit(TxThread * tx){
         uint32_t input_index = tx->fn_list[i].input_index;
         uint32_t output_index = tx->fn_list[i].output_index;
         // execute
-        f(input_index,output_index);
+        f(tx,input_index,output_index);
         uint32_t next_input_index;
         uint32_t next_output_index;
         if (i+1==tx->fn_tail){

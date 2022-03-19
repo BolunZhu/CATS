@@ -167,7 +167,7 @@ namespace stm
     uint32_t output_index;
   };
 
-  typedef void (* fn_t) (uint32_t input_index, uint32_t output_index);
+  typedef void (* fn_t) (TxThread *tx, uint32_t input_index, uint32_t output_index);
 
   /**
    *  In order to avoid a circular dependency, we need to declare some

@@ -1142,8 +1142,35 @@ TMfindBestReverseTask (TM_ARGDECL  findBestTaskArg_t* argPtr)
     return bestTask;
 }
 #endif /* LEARNER_TRY_REVERSE */
-
-
+void fn_1(stm::TxThread* tx,__uint32_t input_index,__uint32_t output_index);
+void fn_1(stm::TxThread* tx,__uint32_t input_index,__uint32_t output_index){
+    // printf("S\n");
+    long toId                      = *(reinterpret_cast<long *>(stamp_TM_GET_INPUT(input_index+0)));
+    adtree_t * adtreePtr           = *(reinterpret_cast<adtree_t * *>(stamp_TM_GET_INPUT(input_index+1)));
+    net_t * netPtr                 = *(reinterpret_cast<net_t * *>(stamp_TM_GET_INPUT(input_index+2))); 
+    query_t * queries              = *(reinterpret_cast<query_t * *>(stamp_TM_GET_INPUT(input_index+3))); 
+    vector_t * queryVectorPtr      = *(reinterpret_cast<vector_t * *>(stamp_TM_GET_INPUT(input_index+4))); 
+    vector_t * parentQueryVectorPtr= *(reinterpret_cast<vector_t * *>(stamp_TM_GET_INPUT(input_index+5))); 
+    float* p_toLocalBaseLogLikelihood =(reinterpret_cast<float *>(stamp_TM_GET_INPUT(input_index+6))); 
+    float newBaseLogLikelihood     = *(reinterpret_cast<float *>(stamp_TM_GET_OUTPUT(output_index)));
+    float deltaLogLikelihood       = *(reinterpret_cast<float *>(stamp_TM_GET_OUTPUT(output_index+1)));
+    // printf("1\n");
+    newBaseLogLikelihood =
+                computeLocalLogLikelihood(toId,
+                                            adtreePtr,
+                                            netPtr,
+                                            queries,
+                                            queryVectorPtr,
+                                            parentQueryVectorPtr);
+    // printf("2\n");
+    float toLocalBaseLogLikelihood =
+                        TM_READ_p(p_toLocalBaseLogLikelihood);
+    // printf("3\n");                 
+    deltaLogLikelihood +=
+    toLocalBaseLogLikelihood - newBaseLogLikelihood;
+    TM_WRITE_p(p_toLocalBaseLogLikelihood, newBaseLogLikelihood);
+    // printf("4\n");
+}
 /* =============================================================================
  * learnStructure
  *
@@ -1283,25 +1310,38 @@ learnStructure (void* argPtr)
                 float newBaseLogLikelihood;
                 case OPERATION_INSERT: {
                     TM_BEGIN();
+                    // netPrt adtreePtr are from args. others are from local allocate.
+                    // adtreePtr and netPrt are only be read.
                     TMpopulateQueryVectors(TM_ARG
                                            netPtr,
                                            toId,
                                            queries,
                                            queryVectorPtr,
                                            parentQueryVectorPtr);
-                    newBaseLogLikelihood =
-                        computeLocalLogLikelihood(toId,
-                                                  adtreePtr,
-                                                  netPtr,
-                                                  queries,
-                                                  queryVectorPtr,
-                                                  parentQueryVectorPtr);
-                    float toLocalBaseLogLikelihood =
-                        (float)TM_SHARED_READ_F(localBaseLogLikelihoods[toId]);
-                    deltaLogLikelihood +=
-                        toLocalBaseLogLikelihood - newBaseLogLikelihood;
-                    TM_SHARED_WRITE_F(localBaseLogLikelihoods[toId],
-                                      newBaseLogLikelihood);
+                    __uint32_t input_index=stamp_TM_INPUT(reinterpret_cast<uint64_t>(&toId));
+                    stamp_TM_INPUT(reinterpret_cast<uint64_t>(&adtreePtr));
+                    stamp_TM_INPUT(reinterpret_cast<uint64_t>(&netPtr));
+                    stamp_TM_INPUT(reinterpret_cast<uint64_t>(&queries));
+                    stamp_TM_INPUT(reinterpret_cast<uint64_t>(&queryVectorPtr));
+                    stamp_TM_INPUT(reinterpret_cast<uint64_t>(&parentQueryVectorPtr));
+                    stamp_TM_INPUT(reinterpret_cast<uint64_t>(&localBaseLogLikelihoods[toId]));
+                    __uint32_t output_index=stamp_TM_OUTPUT(reinterpret_cast<uint64_t>(&newBaseLogLikelihood));
+                    stamp_TM_OUTPUT(reinterpret_cast<uint64_t>(&deltaLogLikelihood));
+                    stamp_TM_OUTPUT(reinterpret_cast<uint64_t>(&localBaseLogLikelihoods[toId]));
+                    stamp_TM_DELAY(input_index,output_index,reinterpret_cast<uint64_t>(fn_1));
+                    // newBaseLogLikelihood =
+                    //     computeLocalLogLikelihood(toId,
+                    //                               adtreePtr,
+                    //                               netPtr,
+                    //                               queries,
+                    //                               queryVectorPtr,
+                    //                               parentQueryVectorPtr);
+                    // float toLocalBaseLogLikelihood =
+                    //     (float)TM_SHARED_READ_F(localBaseLogLikelihoods[toId]);
+                    // deltaLogLikelihood +=
+                    //     toLocalBaseLogLikelihood - newBaseLogLikelihood;
+                    // TM_SHARED_WRITE_F(localBaseLogLikelihoods[toId],
+                    //                   newBaseLogLikelihood);
                     TM_END();
                     TM_BEGIN();
                     long numTotalParent = (long)TM_SHARED_READ_L(learnerPtr->numTotalParent);

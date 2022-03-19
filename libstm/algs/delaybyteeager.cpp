@@ -246,6 +246,7 @@ void DelayByteEager::delay_rw(STM_DELAY_SIG(tx,input,output,fn)){
 // can bu optimized since don't need to lock data
 // for example: switch pointer tmread tmwrite and execute and switch back
 void execute_delay_before_commit(TxThread* tx,uint32_t max_conflict_index){
+    // printf("max_conflict_index=%d\n",max_conflict_index);
     tx->tmread = DelayByteEager::read_delay;
     tx->tmwrite = DelayByteEager::write_delay;
     for(uint32_t i=tx->fn_head; i<=max_conflict_index; i++){
@@ -292,6 +293,7 @@ void execute_delay_before_commit(TxThread* tx,uint32_t max_conflict_index){
 
 // execute delayed computation in commit phase
 void execute_delay_commit(TxThread * tx){
+    
     tx->tmread = DelayByteEager::read_delay;
     tx->tmwrite = DelayByteEager::write_delay;
     // execute -> cnt--  -> if cnt==0 unlock
@@ -315,8 +317,11 @@ void execute_delay_commit(TxThread * tx){
         // cnt-- and unlock if cnt==0 for input
         for(uint32_t j=input_index; j<next_input_index;j++){
             tx->cnt_bytelocks[get_cnt_index_from_addr(tx,tx->input_list[j])]--;
+            // printf("tx->cnt_bytelocks read %d=%d\n",j,
+            // tx->cnt_bytelocks[get_cnt_index_from_addr(tx,tx->input_list[j])]);
             if(tx->cnt_bytelocks[get_cnt_index_from_addr(tx,tx->input_list[j])]==0){
                 // read unlock
+                // printf("unlock read %d\n",j);
                 bytelock_t* lock = get_bytelock(reinterpret_cast<void*>(tx->input_list[j]));
                 lock->reader[tx->id-1] = 0;
             }
@@ -324,9 +329,12 @@ void execute_delay_commit(TxThread * tx){
         // cnt-- and unlock if cnt==0 for output
         for(uint32_t j=output_index; j<next_output_index; j++){
             tx->cnt_bytelocks[get_cnt_index_from_addr(tx,tx->output_list[j])]--;
+            // printf("tx->cnt_bytelocks write %d=%d\n",j,
+            // tx->cnt_bytelocks[get_cnt_index_from_addr(tx,tx->output_list[j])]);
             if(tx->cnt_bytelocks[get_cnt_index_from_addr(tx,tx->output_list[j])]==0){
                 // write unlock
-                bytelock_t* lock = get_bytelock(reinterpret_cast<void*>(tx->input_list[j]));
+                // printf("unlock write %d\n",j);
+                bytelock_t* lock = get_bytelock(reinterpret_cast<void*>(tx->output_list[j]));
                 lock->owner = 0;
             }
         }
@@ -334,6 +342,7 @@ void execute_delay_commit(TxThread * tx){
     // don't need to switch back cause they will be read_ro.. in the commit phase
     // tx->tmread = DelayByteEager::read_rw;
     // tx->tmwrite = DelayByteEager::write_rw;
+    // printf("execute_delay_commit return with tx->fn_tail=%d\n",tx->fn_tail);
     tx->fn_head=0;
     tx->fn_tail=0;
     tx->input_head=0;

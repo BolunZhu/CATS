@@ -272,7 +272,8 @@ namespace stm
  */
 #define TM_READ(var)       stm::stm_read(&var, tx)
 #define TM_WRITE(var, val) stm::stm_write(&var, val, tx)
-
+#define TM_READ_p(var)       stm::stm_read(var, tx)
+#define TM_WRITE_p(var, val) stm::stm_write(var, val, tx)
 /**
  *  This is the way to start a transaction
  */
@@ -318,7 +319,11 @@ namespace stm
 #define TM_GET_INPUT(index)  stm::tx_get_input(tx,index)
 #define TM_GET_OUTPUT(index) stm::tx_get_output(tx,index)
 #define TM_DELAY(input,output,fn) tx->tmdelay(tx,input,output,fn)
-#define stamp_TM_RELAY(vinput,output,fn) STM_SELF->tmdelay(tx,input,output,fn)
+#define stamp_TM_INPUT(addr)       stm::tx_input(STM_SELF,addr)
+#define stamp_TM_OUTPUT(addr)      stm::tx_output(STM_SELF,addr)
+#define stamp_TM_GET_INPUT(index)  stm::tx_get_input(tx,index)
+#define stamp_TM_GET_OUTPUT(index) stm::tx_get_output(tx,index)
+#define stamp_TM_DELAY(input,output,fn) STM_SELF->tmdelay(STM_SELF,input,output,fn)
 #define TM_GET_ALGNAME()     stm::get_algname()
 
 /**

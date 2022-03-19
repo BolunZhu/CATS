@@ -71,7 +71,10 @@ namespace stm
         prio(0), consec_aborts(0), seed((unsigned long)&id), myRRecs(64),
         order(-1), alive(1),
         r_bytelocks(64), w_bytelocks(64), r_bitlocks(64), w_bitlocks(64),
-        input_list(64),output_list(64),fn_list(64),
+        input_list((uint64_t *)malloc(sizeof(uint64_t)*NUM_INPUT)),
+        output_list((uint64_t *)malloc(sizeof(uint64_t)*NUM_INPUT)),
+        fn_list((fntuple_t*)malloc(NUM_FN*sizeof(fntuple_t))),input_head(0),input_tail(0),output_head(0),output_tail(0),
+        fn_head(0),fn_tail(0),cnt_bytelocks((u_int32_t*)malloc(NUM_STRIPES*sizeof(uint32_t))),
         my_mcslock(new mcs_qnode_t()),
         cm_ts(INT_MAX),
         cf((filter_t*)FILTER_ALLOC(sizeof(filter_t))),
@@ -117,7 +120,11 @@ namespace stm
       // set up my lock word
       my_lock.fields.lock = 1;
       my_lock.fields.id = id;
-
+      
+      // for cnt locks
+      for(uint32_t i=0;i<NUM_STRIPES;i++){
+        cnt_bytelocks[i]=0;
+      }
       // clear filters
       wf->clear();
       rf->clear();

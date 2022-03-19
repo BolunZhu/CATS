@@ -88,10 +88,19 @@ namespace stm
       bool           strong_HG;     // for strong hourglass
       bool           irrevocable;   // tells begin_blocker that I'm THE ONE
 
-      AddressList    input_list;
-      AddressList    output_list;
-      FnList         fn_list;
-
+      // input_list  output_list fn_list are pre-allocated. 
+      // we never claer its data
+      // when roll back or commit, we only zero their head and tail
+      uint64_t *    input_list;
+      uint64_t *    output_list;
+      fntuple_t *   fn_list;
+      uint32_t      input_head;
+      uint32_t      input_tail;
+      uint32_t      output_head;
+      uint32_t      output_tail;
+      uint32_t       fn_head;
+      uint32_t       fn_tail;
+      uint32_t*     cnt_bytelocks;
       /*** PER-THREAD FIELDS FOR ENABLING ADAPTIVITY POLICIES */
       uint64_t      end_txn_time;      // end of non-transactional work
       uint64_t      total_nontxn_time; // time on non-transactional work

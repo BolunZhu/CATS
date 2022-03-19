@@ -67,7 +67,8 @@ namespace stm
   static const uint32_t ACTIVE        = 0;        // transaction status
   static const uint32_t ABORTED       = 1;        // transaction status
   static const uint32_t SWISS_PHASE2  = 10; // swisstm cm phase change thresh
-
+  static const uint32_t NUM_INPUT     = 256;
+  static const uint32_t NUM_FN        = 64;
   /**
    *  These global fields are used for concurrency control and conflict
    *  detection in our STM systems
@@ -89,7 +90,7 @@ namespace stm
   extern pad_word_t    greedy_ts;                      // for swiss cm
   extern pad_word_t    fcm_timestamp;                  // for FCM
   extern dynprof_t*    app_profiles;                   // for ProfileApp*
-
+//   extern uint32_t      cnt_bytelocks[NUM_STRIPES];     // for cnts of bytelocks
   // ProfileTM can't function without these
   extern dynprof_t*    profiles;          // a list of ProfileTM measurements
   extern uint32_t      profile_txns;      // how many txns per profile

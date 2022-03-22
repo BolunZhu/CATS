@@ -377,6 +377,7 @@ void execute_delay_commit(TxThread * tx){
           uint32_t index = get_cnt_index_from_lock(tx,*i);
           if(tx->cnt_bytelocks[index]==0){
               // not registered
+            //   printf("unlock write\n");
               (*i)->owner = 0;
           }
       }
@@ -384,6 +385,7 @@ void execute_delay_commit(TxThread * tx){
       foreach (ByteLockList, i, tx->r_bytelocks){
           uint32_t index = get_cnt_index_from_lock(tx,*i);
           if(tx->cnt_bytelocks[index]==0){
+            //   printf("unlock read\n");
               (*i)->reader[tx->id-1] = 0;
           }
       }

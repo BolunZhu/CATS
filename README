@@ -1,0 +1,66 @@
+Please visit the Rochester Software Transactional Memory website
+(http://www.cs.rochester.edu/research/synchronization/rstm/index.shtml) for
+detailed information on this software package, to include recent publications,
+example code, and documentation.
+
+WINDOWS-VisualStudio USERS
+
+    We have support for Visual C++ 2008 in the /VisualStudio/VisualStudio.sln
+    solution. Please read the README.txt included there for configuration and
+    build instructions.
+
+BUILDING
+
+    After you have unpacked the rstm tarball, you will need to build the
+    config.h and Makefile.inc files. The stmconfig executable performs this
+    task. First, build stmconfig by typing
+
+        'make stmconfig'
+
+    Note: if you have multiple versions of gcc installed in your system, and
+    they have different names, you can explicitly select which one you would
+    like to configure with by passing the -e flag to make. For instance, if you
+    have gcc 4.2.4 installed as gcc-4.2, you can configure that for use using:
+
+        'make stmconfig -e CXX=g++-4.2'
+
+    You must clean stmconfig in order to change the compiler settings, simply
+    making 'config' or 'stmconfig' again will not update the CXX setting.
+        
+    Then invoke the interactive stmconfig tool (when stmconfig is invoked with
+    the -D option, defaults will be chosen for you).
+    
+        './stmconfig'
+
+    On Linux/Solaris/MacOS, the top-level makefile will build an stm library
+    based on the values in config.h and Makefile.inc, which are produced by
+    stmconfig. This makefile will also automatically build the microbenchmark
+    code in /bench. Please note that the makefiles are written for GNU
+    make. On Solaris machines, use 'gmake'.
+
+    To build the mesh, swarm, and hashing applications, you must first
+    configure and build the stm library using the above instructions. Then
+    enter the appropriate directory and type 'make'.  You may need to run
+    'make' twice to resolve some dependencies.
+
+BUILDING-LLVM-2.5
+
+    In orfer to build with LLVM you should have the llvm and llvm-gcc binaries
+    in your path. Then, build stmconfig using
+
+        'CXX=llvm-g++ make config'
+
+    This will build Makefile.inc that sets LLVM as the default compiler, and
+    prepares your CXXFLAGS appropriately. Do not use the -e option to make as
+    described in the BUILDING section, as it will not use the correct flags.
+
+    The LLVM build generates and links one large bitcode file which it then
+    aggressively optimizes before generating an executable. It is not yet
+    possible to JIT the bitcode file due to its use of inline assembly for some
+    low level routines. We expect to address this in the next release.
+    
+RUNNING
+
+    Invoking an executable with the -h flag will provide a list of command-line
+    options.  Note that the microbenchmark executable will be named according
+    to the STM backend against which it is linked.

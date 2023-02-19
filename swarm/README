@@ -1,0 +1,15 @@
+This directory contains code for /swarm/, an OpenGL/GLUT application that uses
+transactional memory during scene updating and rendering. More details can be
+found in our ICPP, 2008 paper on inevitability.
+
+  http://www.cse.ohio-state.edu/~icpp2008/
+  http://www.cs.rochester.edu/u/scott/papers/2008_icpp_inevitability.pdf
+
+BUILDING
+
+  Configure and build the RSTM library, and then simply `make` in this
+  directory. Running swarm with the -h option will provide a list of
+  configurable parameters to the application. Refer to the web documenation for
+  more information.
+
+    http://www.cs.rochester.edu/research/synchronization/rstm/applications.shtml#swarm

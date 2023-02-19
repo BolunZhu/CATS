@@ -1,0 +1,24 @@
+This directory contains files necessary for using one of the word-based RSTM
+backends as the STM in the <a href="http://stamp.stanford.edu/">STAMP benchmark
+suite</a>. It has been tested to work with STAMP version 0.9.10.
+
+Instructions:
+
+1) Configure and compile RSTM.
+
+   -- The object-based library backends RSTM and REDO-LOCK are not supported.
+   -- The GCHeap allocator is not supported, configure with malloc.
+
+2) Build the libstamp library.
+
+   -- Make targets ee, el, and ll use different write acquisition/versioning
+      algorithms where supported by your configured backend.
+   -- See Makefile and rstm.cpp in $(RSTM)/libstamp for more information.
+
+3) Download and unpack <a href="http://stamp.stanford.edu/">STAMP</a>.
+
+4) Modify STAMP to point to your libstamp directory.
+
+   -- $(STAMP)/common/Makefile.stm, change -ltl2 to -lrstm
+   -- $(STAMP)/common/Defines.common.mk, change STM to the relative path to
+      $(RSTM)/libstamp. 

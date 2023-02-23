@@ -32,6 +32,15 @@ set(
   TypeTest
   DisjointBench
   MCASBench
+  # Test1: one hotspot at head
+  Test1
+  Test1Delay
+  # Test2: all inst are uncritial
+  Test2
+  Test2Delay
+  # Test3: inst before hotspot are critial
+  Test3
+  Test3Delay 
   ReadWriteNBench
   ReadNWrite1Bench)
 

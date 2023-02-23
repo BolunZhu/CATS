@@ -1,3 +1,50 @@
+# CATS: A Computation-Aware Transaction Processing System with Proactive Unlocking
+CATS is a computation-aware transactional memory targeted at high-contentious workloads.
+To efficiently mitigate concurrency conflicts, CATS leverages proactive unlocking to alleviate potential conflicts among transactions.
+(Note: This is not the final version of CATS, we are still improving the readability of our codes and documentations.)
+This repo is implemented on top of RSTM (http://code.google.com/p/rstm).
+
+
+The core implementation of CATS is in `libstm/algs/delaybyteeager.cpp`, which contains a 2PL protocol with `defered execution`.
+Evaluation codes are in bench/Test*.cpp.
+
+## Build
+Assume that you have this file located in `/home/yourname/rstm`:
+```bash
+  cd /home/yourname/
+  mkdir rstm_build
+  cd rstm_build
+  cmake ../rstm
+  make
+```
+
+## Run
+We provide scripts to reproduce our evaluation results in `./script/*.sh`.
+To perform evaluation, users need to cp these bash scripts in `rstm_build/script` path and run these scripts. For example, suppose we have `rstm` and `rstm_build` in `~/`:
+```bash
+mkdir ~/rstm_build/script
+cp ~/rstm/script/*.sh ~/rstm_build/script/
+cd ~/rstm_build/script
+# To run Test1
+sh ./Test1.sh
+# To run Test2
+sh ./Test2.sh
+# To run Test3
+sh ./Test3.sh
+```
+The output might be very verbose, we plan to provide a tool to visualize them in the future.
+
+---
+Note: for users need to run benchmarks for themselves, see below:
+
+To run benchmark in `Test1Delay.cpp` with CATS, `cd` to your `rstm_build` directory.
+```bash
+export STM_CONFIG=DelayByteEager
+./bench/Test1DelaySSB64 -p 16 -O 10 -d 5
+```
+The codes above run benchmark `Test1Delay` with 16 threads (`-p 16`) in 5s (`-d 5`), and the computational operations are repeated 10 times (`-O 10`).
+#
+
 RSTM Release 7 Notes
 
 The latest RSTM release features the following changes:
